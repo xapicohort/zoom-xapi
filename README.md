@@ -1,6 +1,11 @@
 # zoom-xapi
 ## xAPI Cohort | Fall 2020
-Connects Zoom API Events to xAPI
+Connect Zoom API Events to xAPI
+
+- [View #team-zoom](https://github.com/orgs/xapicohort/teams/team-zoom) 
+  - _Must be `xapicohort` org member to view_
+  - _Join the [xAPI Cohort](https://xapicohort.com) here_
+- [View Zoom Webhook Event List](/zoom-webhook-events.md)
 
 ## Starter project
 https://glitch.com/~tan-regular-whimsey
