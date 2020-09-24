@@ -10,6 +10,6 @@ https://glitch.com/~tan-regular-whimsey
 The example above can be "remixed", meaning forked into your own unique project that can be developed (basic Glitch accounts are free). It has some sample code to take a Zoom App Webhook event and process the request, with the end goal of sending xAPI statements.
 
 ## Zoom API Reference
-https://marketplace.zoom.us/docs/api-reference/
-https://marketplace.zoom.us/docs/api-reference/webhook-reference
-https://marketplace.zoom.us/develop/create?source=devdocs
+- https://marketplace.zoom.us/docs/api-reference/
+- https://marketplace.zoom.us/docs/api-reference/webhook-reference
+- https://marketplace.zoom.us/develop/create?source=devdocs
