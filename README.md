@@ -7,12 +7,12 @@ Connect Zoom API Events to xAPI
   - _Join the [xAPI Cohort](https://xapicohort.com) here_
 - [View Zoom Webhook Event List](/zoom-webhook-events.md)
 
-## Starter project
-https://glitch.com/~tan-regular-whimsey
+## Live edit/share project
+https://glitch.com/~cohort-team-zoom
 
 **Glitch** is a live coding environment, that can use JavaScript to create test projects, as well as leverage Node.js server code.
 
-The example above can be "remixed", meaning forked into your own unique project that can be developed (basic Glitch accounts are free). It has some sample code to take a Zoom App Webhook event and process the request, with the end goal of sending xAPI statements.
+The example above can be "remixed", meaning forked into your own unique project that can be developed (basic Glitch accounts are free). It has some code to take a Zoom App Webhook event and process the requests to send xAPI.
 
 ## Zoom API Reference
 - https://marketplace.zoom.us/docs/api-reference/

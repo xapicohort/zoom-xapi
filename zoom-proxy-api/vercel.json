@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "env": {
+    "ZOOM_JWT_API_KEY": "@zoom_jwt_api_key",
+    "ZOOM_JWT_API_SECRET": "@zoom_jwt_api_secret"    
+  }
+}
