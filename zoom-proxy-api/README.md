@@ -15,12 +15,28 @@ https://api.zoom.us/v2
 // Proxy API
 https://zoom-proxy-api.vercel.app/api
 
-// Path
+// Paths
 /meetings/82766620474/recordings
+/users/JPYZGbjgQg6eIR2WhWMyPw/recordings
 
-// Final proxy path
-https://zoom-proxy-api.vercel.app/api/meetings/82766620474/recordings
 ```
+---
+
+### Get Last Recording
+#### Prod
+- https://zoom-proxy-api.vercel.app/api/meetings/82766620474/recordings
+
+#### Dev
+- http://localhost:3000/api/meetings/82766620474/recordings
+
+### Get All Recordings for User
+#### Prod
+- https://zoom-proxy-api.vercel.app/api/users/JPYZGbjgQg6eIR2WhWMyPw/recordings
+
+#### Dev
+- http://localhost:3000/api/users/JPYZGbjgQg6eIR2WhWMyPw/recordings
+
+---
 
 ## Vercel
 - https://vercel.com/docs/serverless-functions/introduction

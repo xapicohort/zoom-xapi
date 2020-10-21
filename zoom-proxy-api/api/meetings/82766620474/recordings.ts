@@ -1,6 +1,6 @@
 import { NowRequest, NowResponse } from '@vercel/node'
-import fetch, { RequestInit } from 'node-fetch';
-import token from '../../../utils/jwt';
+import fetch from 'node-fetch';
+import utils from '../../../utils/common';
 
 
 // recurring #team-zoom meeting
@@ -11,13 +11,7 @@ export default async (req: NowRequest, res: NowResponse) => {
 
   const zoomApiEndpoint = `https://api.zoom.us/v2/meetings/${meetingId}/recordings`;
 
-  const cfg: RequestInit = {
-    headers: {
-      'User-Agent': 'Zoom-Jwt-Request',
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token},`
-    }
-  };
+	const cfg = utils.getFetchConfig();
 
   try {
     // https://github.com/node-fetch/node-fetch
