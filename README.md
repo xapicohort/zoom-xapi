@@ -2,6 +2,7 @@
 ## xAPI Cohort | Fall 2020
 Connect Zoom API Events to xAPI
 
+- [View Project Site](https://xapicohort.com/zoom-xapi/)
 - [View #team-zoom](https://github.com/orgs/xapicohort/teams/team-zoom) 
   - _Must be `xapicohort` org member to view_
   - _Join the [xAPI Cohort](https://xapicohort.com) here_
