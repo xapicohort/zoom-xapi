@@ -1,82 +1,128 @@
 define(function (require) {
   var $ = require('jquery');
-  
-  require(['xapiwrapper', 'datatables', 'cookie', 'transition', 'collapse', 'prettify', 'datetimepicker', 'notify'], function() {
 
-    $(document).ready(function() {
-      // get an array with all querystring values
-      // example: var valor = getUrlVars()["valor"];
-      function getUrlVars() {
-        var vars = [], hash;
-        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        for (var i = 0; i < hashes.length; i++) {
-          hash = hashes[i].split('=');
-          vars.push(hash[0]);
-          vars[hash[0]] = hash[1];
+  require(['xapiwrapper', 'datatables', 'cookie', 'transition', 'collapse', 'prettify', 'datetimepicker', 'notify'], function () {
+
+    $(document).ready(function () {
+      function parseQuery(fullQuery) {
+        fullQuery = fullQuery || window.location.search || window.location.href || '';
+        if (!fullQuery) { return; }
+        var query = {};
+        var queryString = fullQuery.split('?')[1];
+        if (!queryString) { return query };
+        var pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&');
+        for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split('=');
+          query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
         }
-        return vars;
+        return query;
       }
 
       // shim for old-style Base64 lib
-      function fromBase64(text){
-        if(CryptoJS && CryptoJS.enc.Base64) 
+      function fromBase64(text) {
+        if (CryptoJS && CryptoJS.enc.Base64)
           return CryptoJS.enc.Base64.parse(text).toString(CryptoJS.enc.Latin1);
         else
           return Base64.decode(text);
       }
 
       // Override any credentials put in the XAPIWrapper.js
-      function resetConfig() {
-        $("#endpoint").val("https://lrs.adlnet.gov/xapi/");
-        $("#username").val("xapi-tools");
-        $("#password").val("xapi-tools");
-        saveConfig();
+      // function resetConfig() {
+      //   // $("#endpoint").val("https://lrs.adlnet.gov/xapi/");
+      //   // $("#username").val("xapi-tools");
+      //   // $("#password").val("xapi-tools");
+
+      //   $("#endpoint").val("https://zoom-api.lrs.io/xapi/");
+      //   $("#username").val("potijw");
+      //   $("#password").val("hddZYOUQ");
+
+      //   saveConfig();
+      //   setupConfig();
+      //   // Populate the table
+      //   getStatementsWithSearch(null, 0);
+      // }
+
+      // function saveConfig() {
+      //   if (!store.enabled) {
+      //     console.log("your browser does not support localstorage, cannot save your auth");
+      //   } else {
+      //     var endpoint = $("#endpoint").val();
+      //     var user = $("#username").val();
+      //     var password = $("#password").val();
+      //     store.set('conf', { "endpoint": endpoint, "user": user, "password": password });
+      //   }
+      //   setupConfig();
+      // }
+
+      function resetConfig(opts) {
+        $('#statement-list').DataTable().clear();
+
+        var qs = parseQuery();
+
+        var isCurrentlySandbox = qs && qs.sandbox;
+
+        var setToSandbox = opts && opts.sandbox;
+
+        var historyState = window.location.pathname; // base URL
+
+        console.log('isCurrentlySandbox:', isCurrentlySandbox);
+        console.log('setToSandbox:', setToSandbox);
+
+        if (setToSandbox) {
+          if (isCurrentlySandbox) {
+            return;
+          }
+
+          historyState = historyState + '?sandbox=true';
+        }
+
+        console.log('historyState:', historyState);
+        window.history.replaceState(null, null, historyState);
+
         setupConfig();
-        // Populate the table
         getStatementsWithSearch(null, 0);
       }
-      
-      function saveConfig() {
-        if (!store.enabled) {
-          console.log("your browser does not support localstorage, cannot save your auth");
+
+      function getConfig() {
+        var qs = parseQuery();
+
+        var isSandbox = qs && qs.sandbox;
+
+        console.log('isSandbox (getConfig):', isSandbox);
+
+        var btnProduction = document.querySelector('.btn.production');
+        var btnSandbox = document.querySelector('.btn.sandbox');
+
+        var config = {
+          endpoint: 'https://zoom-api.lrs.io/xapi/',
+          username: 'potijw',
+          password: 'hddZYOUQ'
+        };
+
+        if (isSandbox) {
+          config = {
+            endpoint: 'https://zoom-api-sandbox.lrs.io/xapi/',
+            username: 'dupejo',
+            password: 'qupvwvrw'
+          };
+
+          btnProduction.classList.remove('selected');
+          btnSandbox.classList.add('selected');
         } else {
-          var endpoint = $("#endpoint").val();
-          var user = $("#username").val();
-          var password = $("#password").val();
-          store.set('conf', { "endpoint": endpoint, "user": user, "password": password});
+          btnProduction.classList.add('selected');
+          btnSandbox.classList.remove('selected');
         }
-        setupConfig();
+
+        return config;
       }
 
       function setupConfig() {
-        var qs = getUrlVars();
-        if (qs['endpoint'] || qs['auth']) {
-          if (qs['endpoint']) { $("#endpoint").val(qs['endpoint']); }
-          if (qs['auth']) {
-            var auth = fromBase64(qs['auth'].replace('Basic%20','')).split(':');
-            $("#username").val(auth[0]);
-            $("#password").val(auth[1]);
-          }
-        } else if (store.enabled && store.get("conf")) {
-          var config = store.get('conf');
-          $("#endpoint").val(config.endpoint);
-          $("#username").val(config.user);
-          $("#password").val(config.password);
-          var conf = {
-              "endpoint" : config.endpoint,
-              "auth" : "Basic " + toBase64(config.user + ":" + config.password),
-          };
-        } else {
-          // get LRS credentials from user interface
-          var endpoint = $("#endpoint").val();
-          var user = $("#username").val();
-          var password = $("#password").val();
+        var cfg = getConfig();
 
-          var conf = {
-              "endpoint" : endpoint,
-              "auth" : "Basic " + toBase64(user + ":" + password),
-          };
-        }
+        var conf = {
+          "endpoint": cfg.endpoint,
+          "auth": "Basic " + toBase64(cfg.username + ":" + cfg.password),
+        };
 
         ADL.XAPIWrapper.changeConfig(conf);
       }
@@ -107,7 +153,7 @@ define(function (require) {
 
       gmore = null;
 
-      $("#reset-search").click(function(e) {
+      $("#reset-search").click(function (e) {
         $("#search-predefined-verb").val("");
         $("#search-verb-sort").val("");
         $("#search-user-verb-id").val("");
@@ -125,7 +171,7 @@ define(function (require) {
       });
 
       // Handle XAPIWrapper XHR Errors
-      ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+      ADL.xhrRequestOnError = function (xhr, method, url, callback, callbackargs) {
         //console.log(xhr);
         $.notify({ title: "Status " + xhr.status + " " + xhr.statusText + ": ", message: xhr.response }, notificationErrorSettings);
       };
@@ -134,35 +180,53 @@ define(function (require) {
         "columns": [
           { width: "10%", data: "timestamp", "defaultContent": "" },
           { width: "17%", data: "actor.name", "defaultContent": "" },
-          { width: "13%", data: function (row, type, val, meta){
-            if ('display' in row.verb){
-              if (!('en-US' in row.verb.display)){
-                if ('en' in row.verb.display){
-                  return row.verb.display.en;
+          {
+            width: "13%", data: function (row, type, val, meta) {
+              if ('display' in row.verb) {
+                if (!('en-US' in row.verb.display)) {
+                  if ('en' in row.verb.display) {
+                    return row.verb.display.en;
+                  }
                 }
+                return row.verb.display['en-US'];
               }
-              return row.verb.display['en-US'];
-            }
-          }, "defaultContent": "" },
+            }, "defaultContent": ""
+          },
           { width: "28%", data: "object.definition.name.en-US", "defaultContent": "" },
           { width: "12%", data: "object.objectType", "defaultContent": "" },
-          { width: "15%", data: "authority.name", "defaultContent": "" },
+          // { width: "15%", data: "authority.name", "defaultContent": "" },
           {
             width: "5%",
-            "className":      'details-control',
-            "orderable":      false,
-            "data":           null,
+            "className": 'details-control',
+            "orderable": false,
+            "data": null,
             "defaultContent": ''
           }
         ],
-        "rowCallback": function( row, data ) {
+        "rowCallback": function (row, data) {
           var display = moment(data.timestamp);
-          $('td:eq(0)', row).html( '<span title="' + data.timestamp + '">' + display.fromNow() + '</span>' );
-          if (data.actor.hasOwnProperty('account') && data.actor.account.hasOwnProperty('name')) { $('td:eq(1)', row).html( data.actor.account.name ); }
-          else if (data.actor.hasOwnProperty('name') == false && data.actor.hasOwnProperty('mbox')) { $('td:eq(1)', row).html( data.actor.mbox.replace('mailto:','') ); }
-          if (data.object.hasOwnProperty('name')) { $('td:eq(3)', row).html( data.object.name ); }
-          else if (data.object.hasOwnProperty('definition') && data.object.definition.hasOwnProperty('name') == false && data.object.hasOwnProperty('id')) { $('td:eq(3)', row).html( data.object.id ); }
-          else if (data.object.hasOwnProperty('id') && data.object.hasOwnProperty('definition') == false ) { $('td:eq(3)', row).html( data.object.id ); }
+
+          $('td:eq(0)', row).html('<span title="' + data.timestamp + '">' + display.fromNow() + '</span>');
+
+          if (data.actor.hasOwnProperty('account') && data.actor.account.hasOwnProperty('name')) {
+            var nameVal = data.actor.name;
+            
+            if (!nameVal) {
+              nameVal = data.actor.account.name;
+            }
+
+            $('td:eq(1)', row).html(nameVal);
+          } else if (data.actor.hasOwnProperty('name') == false && data.actor.hasOwnProperty('mbox')) {
+            $('td:eq(1)', row).html(data.actor.mbox.replace('mailto:', ''));
+          }
+
+          if (data.object.hasOwnProperty('name')) {
+            $('td:eq(3)', row).html(data.object.name);
+          } else if (data.object.hasOwnProperty('definition') && data.object.definition.hasOwnProperty('name') == false && data.object.hasOwnProperty('id')) {
+            $('td:eq(3)', row).html(data.object.id);
+          } else if (data.object.hasOwnProperty('id') && data.object.hasOwnProperty('definition') == false) {
+            $('td:eq(3)', row).html(data.object.id);
+          }
         },
         "order": [[0, 'desc']],
         "pageLength": 25
@@ -212,137 +276,145 @@ define(function (require) {
         //console.log(url);
         $("#xapi-query").val(url);
 
-        ADL.XAPIWrapper.getStatements(search, more, function(r) {           
-            //console.log(r);
-            var response = $.parseJSON(r.response);
+        ADL.XAPIWrapper.getStatements(search, more, function (r) {
+          //console.log(r);
+          var response = $.parseJSON(r.response);
 
-            // update the status in the HTML
-            if (r.status == 200) {
+          // update the status in the HTML
+          if (r.status == 200) {
 
-              // Handle case where only a single statement is returned
-              // using statementId or voidedStatementId
-              if (response.hasOwnProperty('statements')) {
-                var stmts = response.statements;
-                var length = stmts.length;
-              } else {
-                var stmt = response;
-                var length = 1;
-              }
-
-              $.notify({ message: "Status " + r.status + " " + r.statusText }, notificationSettings);
-
-              if (response.more != "") {
-                gmore = response.more;
-              } else {
-                gmore = null;
-              }
-              //console.log(gmore);
-
-              if (length > 0) {
-                if (stmt) {
-                  var stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
-                } else {
-                  var stmts = $.parseJSON(JSON.stringify(stmts));
-                  //console.log(stmts);
-                }
-              }
-
-              $('#statement-list').DataTable().rows.add(stmts).draw();
-              $('#statement-list').DataTable().page(curPage).draw(false);
-              prettyPrint();
+            // Handle case where only a single statement is returned
+            // using statementId or voidedStatementId
+            if (response.hasOwnProperty('statements')) {
+              var stmts = response.statements;
+              var length = stmts.length;
+            } else {
+              var stmt = response;
+              var length = 1;
             }
-          });
-        }
 
-        /* Formatting function for row details - modify as you need */
-        function format ( d ) {
-          // `d` is the original data object for the row
-          return '<div><pre class="prettyprint lang-js">'+
-          JSON.stringify(d, null, 2)+
+            $.notify({ message: "Status " + r.status + " " + r.statusText }, notificationSettings);
+
+            if (response.more != "") {
+              gmore = response.more;
+            } else {
+              gmore = null;
+            }
+            //console.log(gmore);
+
+            if (length > 0) {
+              if (stmt) {
+                var stmts = $.parseJSON("[" + JSON.stringify(stmt) + "]");
+              } else {
+                var stmts = $.parseJSON(JSON.stringify(stmts));
+                //console.log(stmts);
+              }
+            }
+
+            $('#statement-list').DataTable().rows.add(stmts).draw();
+            $('#statement-list').DataTable().page(curPage).draw(false);
+            prettyPrint();
+          }
+        });
+      }
+
+      /* Formatting function for row details - modify as you need */
+      function format(d) {
+        // `d` is the original data object for the row
+        return '<div><pre class="prettyprint lang-js">' +
+          JSON.stringify(d, null, 2) +
           '</pre></div>';
+      }
+
+      // Add event listener for opening and closing details
+      $('#statement-list tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+
+        if (row.child.isShown()) {
+          // This row is already open - close it
+          row.child.hide();
+          tr.removeClass('shown');
         }
-         
-        // Add event listener for opening and closing details
-        $('#statement-list tbody').on('click', 'td.details-control', function () {
-            var tr = $(this).closest('tr');
-            var row = table.row( tr );
-
-            if ( row.child.isShown() ) {
-              // This row is already open - close it
-              row.child.hide();
-              tr.removeClass('shown');
-            }
-            else {
-              // Open this row
-              row.child( format(row.data()) ).show();
-              tr.addClass('shown');
-              PR.prettyPrint();
-            }
-        });
-
-        // save panel state
-        $("#query-options").on('shown.bs.collapse', function () {
-          var active = $("#query-options.in").attr('id');
-          $.cookie('activePanel', active);
-        });
-        $("#query-options").on('hidden.bs.collapse', function () {
-          $.removeCookie('activePanel');
-        });
-        var last = $.cookie('activePanel');
-        if (last != null) {
-          $("#query-options.panel-collapse").removeClass('in');
-          $("#" + last).addClass("in");
+        else {
+          // Open this row
+          row.child(format(row.data())).show();
+          tr.addClass('shown');
+          PR.prettyPrint();
         }
+      });
 
-        $(".collapser a").click(function (e) { e.preventDefault(); });
+      // save panel state
+      $("#query-options").on('shown.bs.collapse', function () {
+        var active = $("#query-options.in").attr('id');
+        $.cookie('activePanel', active);
+      });
+      $("#query-options").on('hidden.bs.collapse', function () {
+        $.removeCookie('activePanel');
+      });
+      var last = $.cookie('activePanel');
+      if (last != null) {
+        $("#query-options.panel-collapse").removeClass('in');
+        $("#" + last).addClass("in");
+      }
 
-        // Populate the predefined verbs dropdown
-        for (var key in ADL.verbs) {
-          var $options = $("#search-predefined-verb");
-          if (ADL.verbs.hasOwnProperty(key)) {
-            $options.append($("<option />").val(ADL.verbs[key]['id']).text(ADL.verbs[key]['display']['en-US']));
-          }
+      $(".collapser a").click(function (e) { e.preventDefault(); });
+
+      // Populate the predefined verbs dropdown
+      for (var key in ADL.verbs) {
+        var $options = $("#search-predefined-verb");
+        if (ADL.verbs.hasOwnProperty(key)) {
+          $options.append($("<option />").val(ADL.verbs[key]['id']).text(ADL.verbs[key]['display']['en-US']));
         }
+      }
 
-        $('#search-statements-since-date').datetimepicker(dateTimeSettings);
-        $('#search-statements-until-date').datetimepicker(dateTimeSettings);
+      $('#search-statements-since-date').datetimepicker(dateTimeSettings);
+      $('#search-statements-until-date').datetimepicker(dateTimeSettings);
 
-        $("#search-predefined-verb").change(function() {
-          var $this = $(this);
-          $("#search-user-verb-id").val($this.val());
-        });
+      $("#search-predefined-verb").change(function () {
+        var $this = $(this);
+        $("#search-user-verb-id").val($this.val());
+      });
 
-        $("#get-statements-with-search").click(function(e) {
-          $('#statement-list').DataTable().clear();
-          getStatementsWithSearch(null, 0);
-          e.preventDefault();
-        });
-        
-        // Populate the table
+      $("#get-statements-with-search").click(function (e) {
+        $('#statement-list').DataTable().clear();
         getStatementsWithSearch(null, 0);
+        e.preventDefault();
+      });
 
-        $("#more").click(function(e) {
-          if (gmore != null) {
-            var curPage = $('#statement-list').DataTable().page();
-            getStatementsWithSearch(gmore, curPage);
-          } else {
-            $.notify({ message: "No more statments!" }, notificationErrorSettings);
-          }
-          e.preventDefault();
-        });
+      // Populate the table
+      getStatementsWithSearch(null, 0);
 
-        $("#reset-auth").click(function(e) {
+      $("#more").click(function (e) {
+        if (gmore != null) {
+          var curPage = $('#statement-list').DataTable().page();
+          getStatementsWithSearch(gmore, curPage);
+        } else {
+          $.notify({ message: "No more statments!" }, notificationErrorSettings);
+        }
+        e.preventDefault();
+      });
+
+      $('.env-switcher .btn').on('click', function (e) {
+        if ($(this).hasClass('production')) {
           resetConfig();
-          e.preventDefault();
-        });
+        } else {
+          resetConfig({ sandbox: true });
+        }
+      });
 
-        $("#save-auth").click(function(e) {
-          // In case the endpoint information has changed
-          saveConfig();
-          $('#statement-list').DataTable().clear();
-          getStatementsWithSearch(null, 0);
-          e.preventDefault();
-        });
+      // $("#reset-auth").click(function (e) {
+      //   resetConfig();
+      //   e.preventDefault();
+      // });
+
+      // $("#save-auth").click(function (e) {
+      //   // In case the endpoint information has changed
+      //   saveConfig();
+      //   $('#statement-list').DataTable().clear();
+      //   getStatementsWithSearch(null, 0);
+      //   e.preventDefault();
+      // });
 
     });
   });
