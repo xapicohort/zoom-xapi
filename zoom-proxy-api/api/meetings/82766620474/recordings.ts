@@ -11,7 +11,7 @@ export default async (req: NowRequest, res: NowResponse) => {
 
   const zoomApiEndpoint = `https://api.zoom.us/v2/meetings/${meetingId}/recordings`;
 
-	const cfg = utils.getFetchConfig();
+  const cfg = utils.getFetchConfig();
 
   try {
     // https://github.com/node-fetch/node-fetch

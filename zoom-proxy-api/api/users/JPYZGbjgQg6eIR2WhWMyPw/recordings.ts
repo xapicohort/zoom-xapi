@@ -8,23 +8,23 @@ const userId = 'JPYZGbjgQg6eIR2WhWMyPw';
 const meetingId = 82766620474;
 
 const query = {
-	from: '2020-09-01',
+  from: '2020-09-01',
 };
 
 function postProcessData(json: any) {
-	const { meetings = [] } = json || {};
-	
-	const filteredMeetings = meetings.filter((recording: any) => {
-		return recording.id === meetingId;
-	});
+  const { meetings = [] } = json || {};
 
-	const output = Object.assign({}, json);
+  const filteredMeetings = meetings.filter((recording: any) => {
+    return recording.id === meetingId;
+  });
 
-	// override returned values with filtered data
-	output.total_records = filteredMeetings.length;
-	output.meetings = filteredMeetings;
+  const output = Object.assign({}, json);
 
-	return output;
+  // override returned values with filtered data
+  output.total_records = filteredMeetings.length;
+  output.meetings = filteredMeetings;
+
+  return output;
 }
 
 export default async (req: NowRequest, res: NowResponse) => {
@@ -32,20 +32,20 @@ export default async (req: NowRequest, res: NowResponse) => {
 
   let zoomApiEndpoint = `https://api.zoom.us/v2/users/${userId}/recordings?`;
 
-	zoomApiEndpoint += new URLSearchParams(query);
+  zoomApiEndpoint += new URLSearchParams(query);
 
-	const cfg = utils.getFetchConfig();
+  const cfg = utils.getFetchConfig();
 
-	try {
+  try {
     // https://github.com/node-fetch/node-fetch
     const zoomResponse = await fetch(zoomApiEndpoint, cfg);
 
     const { ok, status, statusText } = zoomResponse;
 
     if (ok) {
-			const json = await zoomResponse.json();
-			
-			const output = postProcessData(json);
+      const json = await zoomResponse.json();
+
+      const output = postProcessData(json);
 
       res.json(output);
     } else {
