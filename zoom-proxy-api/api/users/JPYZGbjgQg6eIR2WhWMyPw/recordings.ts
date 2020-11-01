@@ -2,17 +2,13 @@ import { NowRequest, NowResponse } from '@vercel/node';
 import fetch from 'node-fetch';
 import utils from '../../../utils/common';
 
-// Matt K. host ID
-const userId = 'JPYZGbjgQg6eIR2WhWMyPw';
-// recurring #team-zoom meeting
-const meetingId = 82766620474;
-
 const query = {
   from: '2020-09-01',
 };
 
 function postProcessData(json: any) {
   const { meetings = [] } = json || {};
+  const meetingId = utils.getPrimaryMeetingId();
 
   const filteredMeetings = meetings.filter((recording: any) => {
     return recording.id === meetingId;
@@ -29,15 +25,16 @@ function postProcessData(json: any) {
 
 export default async (req: NowRequest, res: NowResponse) => {
   // const { body, query, cookies } = req;
+  const apiRoot = utils.getApiRoot();
+  const hostId = utils.getPrimaryZoomHostId();
 
-  let zoomApiEndpoint = `https://api.zoom.us/v2/users/${userId}/recordings?`;
+  let zoomApiEndpoint = `${apiRoot}/users/${hostId}/recordings?`;
 
   zoomApiEndpoint += new URLSearchParams(query);
 
   const cfg = utils.getFetchConfig();
 
   try {
-    // https://github.com/node-fetch/node-fetch
     const zoomResponse = await fetch(zoomApiEndpoint, cfg);
 
     const { ok, status, statusText } = zoomResponse;
