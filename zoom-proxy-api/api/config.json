@@ -1,0 +1,10 @@
+{
+	"proxy": {
+		"root": "https://zoom-proxy-api.vercel.app/api"
+	},
+	"zoom": {
+		"root": "https://api.zoom.us/v2",
+		"primaryHostId": "JPYZGbjgQg6eIR2WhWMyPw",
+		"primaryMeetingId": "82766620474"
+	}
+}

@@ -2,19 +2,16 @@ import { NowRequest, NowResponse } from '@vercel/node'
 import fetch from 'node-fetch';
 import utils from '../../../utils/common';
 
-
-// recurring #team-zoom meeting
-const meetingId = 82766620474;
-
 export default async (req: NowRequest, res: NowResponse) => {
   // const { body, query, cookies } = req;
+  const apiRoot = utils.getApiRoot();
+  const meetingId = utils.getPrimaryMeetingId();
 
-  const zoomApiEndpoint = `https://api.zoom.us/v2/meetings/${meetingId}/recordings`;
+  const zoomApiEndpoint = `${apiRoot}/meetings/${meetingId}/recordings`;
 
   const cfg = utils.getFetchConfig();
 
   try {
-    // https://github.com/node-fetch/node-fetch
     const zoomResponse = await fetch(zoomApiEndpoint, cfg);
 
     const { ok, status, statusText } = zoomResponse;
@@ -32,12 +29,8 @@ export default async (req: NowRequest, res: NowResponse) => {
     res.status(400).send(error);
   }
 
-
-
-
   // res.json({ body, query, cookies });
 }
-
 
 
 
