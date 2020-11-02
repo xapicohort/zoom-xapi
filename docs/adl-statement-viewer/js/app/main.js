@@ -26,47 +26,15 @@ define(function (require) {
           return Base64.decode(text);
       }
 
-      // Override any credentials put in the XAPIWrapper.js
-      // function resetConfig() {
-      //   // $("#endpoint").val("https://lrs.adlnet.gov/xapi/");
-      //   // $("#username").val("xapi-tools");
-      //   // $("#password").val("xapi-tools");
-
-      //   $("#endpoint").val("https://zoom-api.lrs.io/xapi/");
-      //   $("#username").val("potijw");
-      //   $("#password").val("hddZYOUQ");
-
-      //   saveConfig();
-      //   setupConfig();
-      //   // Populate the table
-      //   getStatementsWithSearch(null, 0);
-      // }
-
-      // function saveConfig() {
-      //   if (!store.enabled) {
-      //     console.log("your browser does not support localstorage, cannot save your auth");
-      //   } else {
-      //     var endpoint = $("#endpoint").val();
-      //     var user = $("#username").val();
-      //     var password = $("#password").val();
-      //     store.set('conf', { "endpoint": endpoint, "user": user, "password": password });
-      //   }
-      //   setupConfig();
-      // }
-
       function resetConfig(opts) {
         $('#statement-list').DataTable().clear();
 
         var qs = parseQuery();
 
         var isCurrentlySandbox = qs && qs.sandbox;
-
         var setToSandbox = opts && opts.sandbox;
 
         var historyState = window.location.pathname; // base URL
-
-        console.log('isCurrentlySandbox:', isCurrentlySandbox);
-        console.log('setToSandbox:', setToSandbox);
 
         if (setToSandbox) {
           if (isCurrentlySandbox) {
@@ -87,8 +55,6 @@ define(function (require) {
         var qs = parseQuery();
 
         var isSandbox = qs && qs.sandbox;
-
-        console.log('isSandbox (getConfig):', isSandbox);
 
         var btnProduction = document.querySelector('.btn.production');
         var btnSandbox = document.querySelector('.btn.sandbox');
@@ -180,6 +146,7 @@ define(function (require) {
         "columns": [
           { width: "10%", data: "timestamp", "defaultContent": "" },
           { width: "17%", data: "actor.name", "defaultContent": "" },
+          { width: "20%", data: "actor.account.name", "defaultContent": "" },
           {
             width: "13%", data: function (row, type, val, meta) {
               if ('display' in row.verb) {
@@ -193,7 +160,7 @@ define(function (require) {
             }, "defaultContent": ""
           },
           { width: "28%", data: "object.definition.name.en-US", "defaultContent": "" },
-          { width: "12%", data: "object.objectType", "defaultContent": "" },
+          // { width: "12%", data: "object.objectType", "defaultContent": "" },
           // { width: "15%", data: "authority.name", "defaultContent": "" },
           {
             width: "5%",
@@ -402,19 +369,6 @@ define(function (require) {
           resetConfig({ sandbox: true });
         }
       });
-
-      // $("#reset-auth").click(function (e) {
-      //   resetConfig();
-      //   e.preventDefault();
-      // });
-
-      // $("#save-auth").click(function (e) {
-      //   // In case the endpoint information has changed
-      //   saveConfig();
-      //   $('#statement-list').DataTable().clear();
-      //   getStatementsWithSearch(null, 0);
-      //   e.preventDefault();
-      // });
 
     });
   });
