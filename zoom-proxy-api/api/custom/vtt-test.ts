@@ -27,16 +27,23 @@ const vttTest = {
 	},
 
 	async getVttData(rawRecordingData: any): Promise<any> {
-		const access_token = utils.getJwtToken();
 		const { meetings = [] } = rawRecordingData;
+				
+		const lastMeeting = meetings.filter((meet: any) => {
+			const { recording_files = [] } = meet;
 
-		const lastMeeting = meetings[0];
+			const transcriptData = recording_files.find((data: any) => {
+				return data.file_type === 'TRANSCRIPT';
+			});
+	
+			return transcriptData;
+		})[0];
 
 		if (!lastMeeting) {
 			console.error('no meetings found');
 			return;
 		}
-
+		
 		const {
 			topic,
 			start_time,
@@ -44,18 +51,19 @@ const vttTest = {
 			share_url,
 			recording_files = [],
 		} = lastMeeting;
-
+		
 		const transcriptData = recording_files.find((data: any) => {
 			return data.file_type === 'TRANSCRIPT';
 		});
 
 		const { download_url = '' } = transcriptData;
-
+		
 		if (!download_url) {
 			console.error('no download_url found');
 			return;
 		}
-
+		
+		const access_token = utils.getJwtToken();
 		const urlWithToken = download_url + '?access_token=' + access_token;
 
 		const response = await fetch(urlWithToken);

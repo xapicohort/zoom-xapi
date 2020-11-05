@@ -11,7 +11,7 @@ function postProcessData(json: any) {
   const meetingId = utils.getPrimaryMeetingId();
 
   const filteredMeetings = meetings.filter((recording: any) => {
-    return recording.id === meetingId;
+    return recording.id.toString() == meetingId;
   });
 
   const output = Object.assign({}, json);
