@@ -9,7 +9,7 @@ export default async (req: NowRequest, res: NowResponse) => {
 
   const zoomApiEndpoint = `${apiRoot}/meetings/${meetingId}/recordings`;
 
-  const cfg = utils.getFetchConfig();
+  const cfg = utils.fetch.getZoomCfg();
 
   try {
     const zoomResponse = await fetch(zoomApiEndpoint, cfg);

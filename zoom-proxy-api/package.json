@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Proxy API to get specific Zoom information without authentication",
   "main": "main.js",
+  "scripts": {
+    "start": "vercel dev --listen 8080",
+    "deploy": "vercel --prod"
+  },
   "dependencies": {
     "jsonwebtoken": "^8.5.1",
     "node-fetch": "^2.6.1",
@@ -13,10 +17,6 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node-fetch": "^2.5.7",
     "@vercel/node": "^1.8.3"
-  },
-  "scripts": {
-    "start": "vercel dev",
-    "deploy": "vercel --prod"
   },
   "keywords": [],
   "author": "",

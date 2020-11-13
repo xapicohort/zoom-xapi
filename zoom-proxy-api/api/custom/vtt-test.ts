@@ -98,8 +98,6 @@ const vttTest = {
 
 				username = username.replace(':', '').trim();
 				usertext = usertext.replace(userMatch, '').trim();
-			} else {
-				console.log('No user found for cue:', usertext);
 			}
 
 			return {

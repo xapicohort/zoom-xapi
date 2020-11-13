@@ -4,16 +4,16 @@ const apiConfig = require("../api/config.json");
 import token from './jwt';
 
 const utils = {
-	getFetchConfig() {
-		const cfg: RequestInit = {
-			headers: {
-				'User-Agent': 'Zoom-Jwt-Request',
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token},`
-			}
-		};
-
-		return cfg;
+	fetch: {
+		getZoomCfg() {
+			return {
+				headers: {
+					'User-Agent': 'Zoom-Jwt-Request',
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token},`
+				}
+			};
+		},
 	},
 
 	getJwtToken() {

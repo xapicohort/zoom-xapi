@@ -32,7 +32,7 @@ export default async (req: NowRequest, res: NowResponse) => {
 
   zoomApiEndpoint += new URLSearchParams(query);
 
-  const cfg = utils.getFetchConfig();
+  const cfg = utils.fetch.getZoomCfg();
 
   try {
     const zoomResponse = await fetch(zoomApiEndpoint, cfg);
